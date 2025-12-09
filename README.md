@@ -1,5 +1,10 @@
 # Boss Fight ML-Agents
 
+[![Paper](https://img.shields.io/badge/📄_Research_Paper-View-blue)](https://docs.google.com/document/d/1Q5GdZmZrukk5LC7ekWNSx0ECbu1ALatR96Ujfnf27cg/edit?usp=sharing)
+[![PDF](https://img.shields.io/badge/📥_Download-PDF-green)](https://github.com/jasontodev/unity-bossfight-rl-ml-agents/raw/main/Multi-Agent%20Reinforcement%20Learning%20for%20Large-Scale%20MMO%20Combat.pdf)
+
+> **📄 Research Paper**: [**View on Google Docs**](https://docs.google.com/document/d/1Q5GdZmZrukk5LC7ekWNSx0ECbu1ALatR96Ujfnf27cg/edit?usp=sharing) | [Download PDF](https://github.com/jasontodev/unity-bossfight-rl-ml-agents/raw/main/Multi-Agent%20Reinforcement%20Learning%20for%20Large-Scale%20MMO%20Combat.pdf) | [View on GitHub](https://github.com/jasontodev/unity-bossfight-rl-ml-agents/blob/main/Multi-Agent%20Reinforcement%20Learning%20for%20Large-Scale%20MMO%20Combat.pdf)
+
 A Unity ML-Agents reinforcement learning project featuring a boss fight game where a party of 4 members (Tank, Healer, MeleeDPS, RangedDPS) battles against an AI-controlled Boss.
 
 ## 🎮 Overview
@@ -112,7 +117,6 @@ python analyze_episodes.py
 - **[SNA Visualization Guide](python_analysis/sna_visualization/SNA_README.md)**: Network analysis documentation
 - **[TensorBoard Guide](python_analysis/TENSORBOARD_README.md)**: Training metrics visualization
 - **[AWS Setup Guide](AWS_ML_AGENTS_SETUP.md)**: Running training on AWS EC2
-- **[Security Audit](SECURITY_AUDIT.md)**: Security best practices
 
 ## 🛠️ Technologies
 
@@ -125,15 +129,27 @@ python analyze_episodes.py
 
 ## 📝 License
 
-[Add your license here]
+This project is licensed under the MIT License.
 
-## 🤝 Contributing
+Copyright (c) 2024
 
-[Add contribution guidelines if applicable]
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-## 📧 Contact
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-[Add your contact information if desired]
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ---
 
