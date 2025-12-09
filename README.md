@@ -1,11 +1,17 @@
 # Boss Fight ML-Agents
 
+A Unity ML-Agents reinforcement learning project featuring a boss fight game where a party of 4 members (Tank, Healer, MeleeDPS, RangedDPS) battles against an AI-controlled Boss.
+
+## 📄 Research Paper
+
 [![Paper](https://img.shields.io/badge/📄_Research_Paper-View-blue)](https://docs.google.com/document/d/1Q5GdZmZrukk5LC7ekWNSx0ECbu1ALatR96Ujfnf27cg/edit?usp=sharing)
 [![PDF](https://img.shields.io/badge/📥_Download-PDF-green)](https://github.com/jasontodev/unity-bossfight-rl-ml-agents/raw/master/Multi-Agent%20Reinforcement%20Learning%20for%20Large-Scale%20MMO%20Combat.pdf)
 
+**Multi-Agent Reinforcement Learning for Large-Scale MMO Combat**
+
 > **📄 Research Paper**: [**View on Google Docs**](https://docs.google.com/document/d/1Q5GdZmZrukk5LC7ekWNSx0ECbu1ALatR96Ujfnf27cg/edit?usp=sharing) | [Download PDF](https://github.com/jasontodev/unity-bossfight-rl-ml-agents/raw/master/Multi-Agent%20Reinforcement%20Learning%20for%20Large-Scale%20MMO%20Combat.pdf) | [View on GitHub](https://github.com/jasontodev/unity-bossfight-rl-ml-agents/blob/master/Multi-Agent%20Reinforcement%20Learning%20for%20Large-Scale%20MMO%20Combat.pdf)
 
-A Unity ML-Agents reinforcement learning project featuring a boss fight game where a party of 4 members (Tank, Healer, MeleeDPS, RangedDPS) battles against an AI-controlled Boss.
+> **⚠️ Note**: If you want to see GIFs and animations playing in the paper, please access the [Google Docs link](https://docs.google.com/document/d/1Q5GdZmZrukk5LC7ekWNSx0ECbu1ALatR96Ujfnf27cg/edit?usp=sharing) instead of the PDF. The PDF version does not support animated content.
 
 ## 🎮 Overview
 
