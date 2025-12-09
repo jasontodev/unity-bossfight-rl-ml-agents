@@ -1,0 +1,127 @@
+# Security - Credentials and Keys
+*.pem
+*.ppk
+*.key
+*.p12
+*.pfx
+*.env
+.env.local
+.env.*.local
+credentials.json
+config.json
+secrets.json
+*.secret
+
+# AWS
+.aws/
+aws-credentials
+*.aws
+
+# API Keys (common patterns)
+*api_key*
+*API_KEY*
+*secret_key*
+*SECRET_KEY*
+*token*
+*TOKEN*
+
+# Personal Information
+# User-specific paths (if accidentally committed)
+# C:\Users\*
+# D:\Gamer to Developer\*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+venv/
+ENV/
+env/
+
+# Unity
+unity/bossfight/Library/
+unity/bossfight/Temp/
+unity/bossfight/Obj/
+unity/bossfight/Logs/
+unity/bossfight/UserSettings/
+unity/bossfight/*.csproj
+unity/bossfight/*.unityproj
+unity/bossfight/*.sln
+unity/bossfight/*.suo
+unity/bossfight/*.user
+unity/bossfight/*.userprefs
+unity/bossfight/*.pidb
+unity/bossfight/*.booproj
+unity/bossfight/*.svd
+unity/bossfight/*.pdb
+unity/bossfight/*.mdb
+unity/bossfight/*.opendb
+unity/bossfight/*.VC.db
+unity/bossfight/Builds/
+unity/bossfight/Build/
+
+# ML-Agents
+results/
+models/
+*.onnx
+*.pt
+*.pth
+*.ckpt
+
+# TensorBoard
+tensorboard_logs/
+runs/
+events.out.tfevents.*
+
+# Episode Data (may contain large files)
+EpisodeData/
+episodes/
+*.json.bak
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+logs/
+

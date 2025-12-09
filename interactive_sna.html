@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Early Training (Episodes 0-15000)</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .main-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+        .controls-panel {
+            width: 350px;
+            min-width: 350px;
+            background: #f5f5f5;
+            padding: 15px;
+            overflow-y: auto;
+            border-right: 2px solid #ddd;
+        }
+        .canvas-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #mynetwork {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 8px;
+        }
+        .controls {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .agent-control-box {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .control-group {
+            margin: 8px 0;
+        }
+        .control-group label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .control-group input[type="range"] {
+            width: 150px;
+            margin: 0 5px;
+        }
+        .control-group span {
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+            font-size: 11px;
+        }
+        .control-group select {
+            width: 180px;
+            font-size: 11px;
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .legend {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .legend-item {
+            margin: 5px 0;
+            font-size: 11px;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 3px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="controls-panel">
+            <h1>Early Training (Episodes 0-15000)</h1>
+            
+            <!-- Boss Controls -->
+            <div class="agent-control-box" style="border: 2px solid #FF6B6B; background: #fff5f5;">
+                <h3 style="color: #FF6B6B; margin-top: 0;">Boss</h3>
+                <div class="control-group">
+                    <label>Node Size:</label>
+                    <input type="range" id="nodeSize_Boss" min="0.5" max="3" value="1" step="0.1">
+                    <span id="nodeSizeValue_Boss">1.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage to Tank:</label>
+                    <input type="range" id="damageThickness_Boss_Tank" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_Boss_Tank">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage to Healer:</label>
+                    <input type="range" id="damageThickness_Boss_Healer" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_Boss_Healer">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage to MeleeDPS:</label>
+                    <input type="range" id="damageThickness_Boss_MeleeDPS" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_Boss_MeleeDPS">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage to RangedDPS:</label>
+                    <input type="range" id="damageThickness_Boss_RangedDPS" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_Boss_RangedDPS">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Edge Curvature:</label>
+                    <input type="range" id="curvature_Boss" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_Boss">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Edge Type:</label>
+                    <select id="edgeType_Boss">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Tank Controls -->
+            <div class="agent-control-box" style="border: 2px solid #4ECDC4; background: #f0fffe;">
+                <h3 style="color: #4ECDC4; margin-top: 0;">Tank</h3>
+                <div class="control-group">
+                    <label>Node Size:</label>
+                    <input type="range" id="nodeSize_Tank" min="0.5" max="3" value="1" step="0.1">
+                    <span id="nodeSizeValue_Tank">1.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Thickness:</label>
+                    <input type="range" id="damageThickness_Tank" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_Tank">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Curvature:</label>
+                    <input type="range" id="curvature_Tank_damage" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_Tank_damage">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Type:</label>
+                    <select id="edgeType_Tank_damage">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Threat Thickness:</label>
+                    <input type="range" id="threatThickness_Tank" min="1" max="20" value="2" step="0.5">
+                    <span id="threatValue_Tank">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Curvature:</label>
+                    <input type="range" id="curvature_Tank_threat" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_Tank_threat">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Type:</label>
+                    <select id="edgeType_Tank_threat">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Taunt Thickness:</label>
+                    <input type="range" id="tauntThickness_Tank" min="1" max="20" value="4" step="0.5">
+                    <span id="tauntValue_Tank">4</span>
+                </div>
+                <div class="control-group">
+                    <label>Taunt Curvature:</label>
+                    <input type="range" id="curvature_Tank_taunt" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_Tank_taunt">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Taunt Type:</label>
+                    <select id="edgeType_Tank_taunt">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Healer Controls -->
+            <div class="agent-control-box" style="border: 2px solid #51CF66; background: #f0fff4;">
+                <h3 style="color: #51CF66; margin-top: 0;">Healer</h3>
+                <div class="control-group">
+                    <label>Node Size:</label>
+                    <input type="range" id="nodeSize_Healer" min="0.5" max="3" value="1" step="0.1">
+                    <span id="nodeSizeValue_Healer">1.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Thickness:</label>
+                    <input type="range" id="damageThickness_Healer" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_Healer">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Curvature:</label>
+                    <input type="range" id="curvature_Healer_damage" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_Healer_damage">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Type:</label>
+                    <select id="edgeType_Healer_damage">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Healing Thickness:</label>
+                    <input type="range" id="healThickness_Healer" min="1" max="20" value="2" step="0.5">
+                    <span id="healValue_Healer">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Healing Curvature:</label>
+                    <input type="range" id="curvature_Healer_heal" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_Healer_heal">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Healing Type:</label>
+                    <select id="edgeType_Healer_heal">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Threat Thickness:</label>
+                    <input type="range" id="threatThickness_Healer" min="1" max="20" value="2" step="0.5">
+                    <span id="threatValue_Healer">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Curvature:</label>
+                    <input type="range" id="curvature_Healer_threat" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_Healer_threat">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Type:</label>
+                    <select id="edgeType_Healer_threat">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- MeleeDPS Controls -->
+            <div class="agent-control-box" style="border: 2px solid #FFD93D; background: #fffef0;">
+                <h3 style="color: #FFD93D; margin-top: 0;">MeleeDPS</h3>
+                <div class="control-group">
+                    <label>Node Size:</label>
+                    <input type="range" id="nodeSize_MeleeDPS" min="0.5" max="3" value="1" step="0.1">
+                    <span id="nodeSizeValue_MeleeDPS">1.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Thickness:</label>
+                    <input type="range" id="damageThickness_MeleeDPS" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_MeleeDPS">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Curvature:</label>
+                    <input type="range" id="curvature_MeleeDPS_damage" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_MeleeDPS_damage">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Type:</label>
+                    <select id="edgeType_MeleeDPS_damage">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Threat Thickness:</label>
+                    <input type="range" id="threatThickness_MeleeDPS" min="1" max="20" value="2" step="0.5">
+                    <span id="threatValue_MeleeDPS">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Curvature:</label>
+                    <input type="range" id="curvature_MeleeDPS_threat" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_MeleeDPS_threat">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Type:</label>
+                    <select id="edgeType_MeleeDPS_threat">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- RangedDPS Controls -->
+            <div class="agent-control-box" style="border: 2px solid #A78BFA; background: #faf5ff;">
+                <h3 style="color: #A78BFA; margin-top: 0;">RangedDPS</h3>
+                <div class="control-group">
+                    <label>Node Size:</label>
+                    <input type="range" id="nodeSize_RangedDPS" min="0.5" max="3" value="1" step="0.1">
+                    <span id="nodeSizeValue_RangedDPS">1.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Thickness:</label>
+                    <input type="range" id="damageThickness_RangedDPS" min="1" max="20" value="2" step="0.5">
+                    <span id="damageValue_RangedDPS">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Curvature:</label>
+                    <input type="range" id="curvature_RangedDPS_damage" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_RangedDPS_damage">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Damage Type:</label>
+                    <select id="edgeType_RangedDPS_damage">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Threat Thickness:</label>
+                    <input type="range" id="threatThickness_RangedDPS" min="1" max="20" value="2" step="0.5">
+                    <span id="threatValue_RangedDPS">2</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Curvature:</label>
+                    <input type="range" id="curvature_RangedDPS_threat" min="0" max="1" value="0.5" step="0.05">
+                    <span id="curvatureValue_RangedDPS_threat">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Threat Type:</label>
+                    <select id="edgeType_RangedDPS_threat">
+                        <option value="continuous">Continuous</option>
+                        <option value="straight">Straight</option>
+                        <option value="curvedCW">Curved CW</option>
+                        <option value="curvedCCW">Curved CCW</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <h3>Global Arrow Controls</h3>
+                <div class="control-group">
+                    <label>Arrow Length:</label>
+                    <input type="range" id="arrowLength" min="0.5" max="3" value="1.2" step="0.1">
+                    <span id="arrowLengthValue">1.2</span>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button onclick="resetLayout()">Reset Node Positions</button>
+                    <button onclick="resetAll()">Reset All</button>
+                </div>
+                
+                <div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <h3>Save/Load</h3>
+                    <div style="margin-top: 10px;">
+                        <button onclick="saveConfiguration()" style="background: #4ECDC4; color: white; border: none;">Save Configuration</button>
+                        <button onclick="loadConfiguration()" style="background: #51CF66; color: white; border: none;">Load Configuration</button>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 10px; color: #666;">
+                        Configuration is saved to browser localStorage
+                    </div>
+                </div>
+            </div>
+            
+            <div class="legend">
+                <h3>Legend</h3>
+                <div class="legend-item"><span class="legend-color" style="background: #FFD93D;"></span>Boss Damage (Yellow)</div>
+                <div class="legend-item"><span class="legend-color" style="background: #FF6B6B;"></span>Party Damage (Red)</div>
+                <div class="legend-item"><span class="legend-color" style="background: #4DABF7;"></span>Threat (Blue)</div>
+                <div class="legend-item"><span class="legend-color" style="background: #A78BFA;"></span>Taunt (Purple)</div>
+                <div class="legend-item"><span class="legend-color" style="background: #51CF66;"></span>Healing (Green)</div>
+                <div class="legend-item"><strong>Node Size:</strong> Class Selection Frequency</div>
+            </div>
+        </div>
+        
+        <div class="canvas-panel">
+            <div id="mynetwork"></div>
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+        // Data
+        const nodes = new vis.DataSet([
+        {
+                "id": "Boss",
+                "label": "Boss",
+                "x": 0.0,
+                "y": 200.0,
+                "color": "#FF6B6B",
+                "size": 20.0,
+                "fixed": false
+        },
+        {
+                "id": "MeleeDPS",
+                "label": "MeleeDPS",
+                "x": 80.0,
+                "y": -80.0,
+                "color": "#FFD93D",
+                "size": 60.0,
+                "fixed": false
+        },
+        {
+                "id": "Tank",
+                "label": "Tank",
+                "x": 0.0,
+                "y": 0.0,
+                "color": "#4ECDC4",
+                "size": 59.99972271037889,
+                "fixed": false
+        },
+        {
+                "id": "Healer",
+                "label": "Healer",
+                "x": -80.0,
+                "y": -80.0,
+                "color": "#51CF66",
+                "size": 60.0,
+                "fixed": false
+        },
+        {
+                "id": "RangedDPS",
+                "label": "RangedDPS",
+                "x": 160.0,
+                "y": -40.0,
+                "color": "#A78BFA",
+                "size": 60.0,
+                "fixed": false
+        }
+]);
+        const edges = new vis.DataSet([
+        {
+                "from": "Boss",
+                "to": "MeleeDPS",
+                "width": 2.0950600146079474,
+                "color": {
+                        "color": "#FFD93D"
+                },
+                "arrows": "to",
+                "id": "boss_Boss_MeleeDPS",
+                "title": "Boss Damage: 19387.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Boss",
+                "targetAgent": "MeleeDPS",
+                "edgeType": "damage"
+        },
+        {
+                "from": "Boss",
+                "to": "Tank",
+                "width": 6.990619284887903,
+                "color": {
+                        "color": "#FFD93D"
+                },
+                "arrows": "to",
+                "id": "boss_Boss_Tank",
+                "title": "Boss Damage: 19615.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Boss",
+                "targetAgent": "Tank",
+                "edgeType": "damage"
+        },
+        {
+                "from": "Boss",
+                "to": "Healer",
+                "width": 6.981278407216411,
+                "color": {
+                        "color": "#FFD93D"
+                },
+                "arrows": "to",
+                "id": "boss_Boss_Healer",
+                "title": "Boss Damage: 19315.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Boss",
+                "targetAgent": "Healer",
+                "edgeType": "damage"
+        },
+        {
+                "from": "Boss",
+                "to": "RangedDPS",
+                "width": 6.977501371191835,
+                "color": {
+                        "color": "#FFD93D"
+                },
+                "arrows": "to",
+                "id": "boss_Boss_RangedDPS",
+                "title": "Boss Damage: 19195.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Boss",
+                "targetAgent": "RangedDPS",
+                "edgeType": "damage"
+        },
+        {
+                "from": "Tank",
+                "to": "Boss",
+                "width": 7.392933376469689,
+                "color": {
+                        "color": "#FF6B6B"
+                },
+                "arrows": "to",
+                "id": "party_Tank_Boss",
+                "title": "Party Damage: 76192.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Tank",
+                "edgeType": "damage"
+        },
+        {
+                "from": "RangedDPS",
+                "to": "Boss",
+                "width": 7.824544196689912,
+                "color": {
+                        "color": "#FF6B6B"
+                },
+                "arrows": "to",
+                "id": "party_RangedDPS_Boss",
+                "title": "Party Damage: 77653.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "RangedDPS",
+                "edgeType": "damage"
+        },
+        {
+                "from": "MeleeDPS",
+                "to": "Boss",
+                "width": 8.0,
+                "color": {
+                        "color": "#FF6B6B"
+                },
+                "arrows": "to",
+                "id": "party_MeleeDPS_Boss",
+                "title": "Party Damage: 103725.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "MeleeDPS",
+                "edgeType": "damage"
+        },
+        {
+                "from": "Healer",
+                "to": "Boss",
+                "width": 7.507790000297205,
+                "color": {
+                        "color": "#FF6B6B"
+                },
+                "arrows": "to",
+                "id": "party_Healer_Boss",
+                "title": "Party Damage: 46045.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Healer",
+                "edgeType": "damage"
+        },
+        {
+                "from": "Tank",
+                "to": "Boss",
+                "width": 7.392933376469689,
+                "color": {
+                        "color": "#4DABF7"
+                },
+                "arrows": "to",
+                "id": "threat_Tank_Boss",
+                "title": "Threat: 76192.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Tank",
+                "edgeType": "threat"
+        },
+        {
+                "from": "RangedDPS",
+                "to": "Boss",
+                "width": 7.824544196689912,
+                "color": {
+                        "color": "#4DABF7"
+                },
+                "arrows": "to",
+                "id": "threat_RangedDPS_Boss",
+                "title": "Threat: 77653.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "RangedDPS",
+                "edgeType": "threat"
+        },
+        {
+                "from": "MeleeDPS",
+                "to": "Boss",
+                "width": 8.0,
+                "color": {
+                        "color": "#4DABF7"
+                },
+                "arrows": "to",
+                "id": "threat_MeleeDPS_Boss",
+                "title": "Threat: 103725.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "MeleeDPS",
+                "edgeType": "threat"
+        },
+        {
+                "from": "Healer",
+                "to": "Boss",
+                "width": 7.507790000297205,
+                "color": {
+                        "color": "#4DABF7"
+                },
+                "arrows": "to",
+                "id": "threat_Healer_Boss",
+                "title": "Threat: 46045.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Healer",
+                "edgeType": "threat"
+        },
+        {
+                "from": "Tank",
+                "to": "Boss",
+                "width": 14.785866752939379,
+                "color": {
+                        "color": "#A78BFA"
+                },
+                "arrows": "to",
+                "id": "taunt_Tank_Boss",
+                "title": "Taunt: 38096.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Tank",
+                "edgeType": "taunt"
+        },
+        {
+                "from": "Healer",
+                "to": "RangedDPS",
+                "width": 6.491765996357341,
+                "color": {
+                        "color": "#51CF66"
+                },
+                "arrows": "to",
+                "dashes": true,
+                "id": "heal_Healer_RangedDPS",
+                "title": "Healing: 8612.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Healer",
+                "edgeType": "heal"
+        },
+        {
+                "from": "Healer",
+                "to": "Tank",
+                "width": 6.481332492777749,
+                "color": {
+                        "color": "#51CF66"
+                },
+                "arrows": "to",
+                "dashes": true,
+                "id": "heal_Healer_Tank",
+                "title": "Healing: 8465.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Healer",
+                "edgeType": "heal"
+        },
+        {
+                "from": "Healer",
+                "to": "MeleeDPS",
+                "width": 6.5003601376514295,
+                "color": {
+                        "color": "#51CF66"
+                },
+                "arrows": "to",
+                "dashes": true,
+                "id": "heal_Healer_MeleeDPS",
+                "title": "Healing: 8735.0",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Healer",
+                "edgeType": "heal"
+        },
+        {
+                "from": "Healer",
+                "to": "Healer",
+                "width": 2.0,
+                "color": {
+                        "color": "#51CF66"
+                },
+                "arrows": "to",
+                "dashes": true,
+                "id": "heal_Healer_Healer",
+                "title": "Healer Self-Healing",
+                "smooth": {
+                        "type": "continuous",
+                        "roundness": 0.5
+                },
+                "sourceAgent": "Healer",
+                "edgeType": "heal"
+        }
+]);
+        const edgeTypes = {
+        "boss_Boss_MeleeDPS": "boss",
+        "boss_Boss_Tank": "boss",
+        "boss_Boss_Healer": "boss",
+        "boss_Boss_RangedDPS": "boss",
+        "party_Tank_Boss": "party",
+        "party_RangedDPS_Boss": "party",
+        "party_MeleeDPS_Boss": "party",
+        "party_Healer_Boss": "party",
+        "threat_Tank_Boss": "threat",
+        "threat_RangedDPS_Boss": "threat",
+        "threat_MeleeDPS_Boss": "threat",
+        "threat_Healer_Boss": "threat",
+        "taunt_Tank_Boss": "taunt",
+        "heal_Healer_RangedDPS": "heal",
+        "heal_Healer_Tank": "heal",
+        "heal_Healer_MeleeDPS": "heal",
+        "heal_Healer_Healer": "heal"
+};
+        
+        // Store original widths and sizes
+        const originalWidths = {};
+        const originalNodeSizes = {};
+        edges.forEach(edge => {
+            originalWidths[edge.id] = edge.width;
+        });
+        nodes.forEach(node => {
+            originalNodeSizes[node.id] = node.size;
+        });
+        
+        // Create network
+        const container = document.getElementById('mynetwork');
+        const data = { nodes: nodes, edges: edges };
+        const options = {
+            nodes: {
+                shape: 'dot',
+                font: { size: 14, face: 'Arial' },
+                borderWidth: 2,
+                shadow: true
+            },
+            edges: {
+                smooth: {
+                    type: 'continuous',
+                    roundness: 0.5
+                },
+                arrows: {
+                    to: { enabled: true, scaleFactor: 1.2 }
+                },
+                shadow: true
+            },
+            physics: {
+                enabled: false  // Completely disabled - nodes move independently
+            },
+            interaction: {
+                dragNodes: true,
+                dragView: true,
+                zoomView: true,
+                selectConnectedEdges: false  // Don't select connected edges when dragging
+            },
+            manipulation: {
+                enabled: false  // Disable manipulation mode
+            }
+        };
+        
+        const network = new vis.Network(container, data, options);
+        
+        // Ensure nodes move independently - disable any physics or layout updates
+        network.on('dragStart', function(params) {
+            // When dragging starts, ensure physics is off and nodes are independent
+            network.setOptions({
+                physics: { enabled: false }
+            });
+        });
+        
+        network.on('dragEnd', function(params) {
+            // After dragging, keep physics off
+            network.setOptions({
+                physics: { enabled: false }
+            });
+        });
+        
+        // Store original curvatures
+        const originalCurvatures = {};
+        edges.forEach(edge => {
+            originalCurvatures[edge.id] = edge.smooth ? (edge.smooth.roundness || 0.5) : 0.5;
+        });
+        
+        // Agent-specific update functions
+        function updateAgentNodeSize(agentId, multiplier) {
+            if (originalNodeSizes[agentId] !== undefined) {
+                const newSize = originalNodeSizes[agentId] * multiplier;
+                nodes.update({ id: agentId, size: newSize });
+            }
+        }
+        
+        function updateAgentEdgeThickness(agentId, edgeType, value, targetAgent = null) {
+            edges.forEach(edge => {
+                if (edge.sourceAgent === agentId && edge.edgeType === edgeType) {
+                    // If targetAgent is specified, only update edges to that target
+                    if (targetAgent !== null) {
+                        if (edge.targetAgent === targetAgent) {
+                            const newWidth = originalWidths[edge.id] * (value / 2.0);
+                            edges.update({ id: edge.id, width: newWidth });
+                        }
+                    } else {
+                        // Update all edges of this type from this agent
+                        const newWidth = originalWidths[edge.id] * (value / 2.0);
+                        edges.update({ id: edge.id, width: newWidth });
+                    }
+                }
+            });
+        }
+        
+        function updateAgentEdgeCurvature(agentId, edgeType, roundness) {
+            edges.forEach(edge => {
+                if (edge.sourceAgent === agentId && edge.edgeType === edgeType) {
+                    const currentSmooth = edge.smooth || { type: 'continuous', roundness: 0.5 };
+                    edges.update({ 
+                        id: edge.id, 
+                        smooth: { 
+                            type: currentSmooth.type || 'continuous', 
+                            roundness: roundness 
+                        } 
+                    });
+                }
+            });
+        }
+        
+        function updateAgentEdgeType(agentId, edgeType, type) {
+            const roundness = parseFloat(document.getElementById(`curvature_${agentId}_${edgeType}`).value);
+            edges.forEach(edge => {
+                if (edge.sourceAgent === agentId && edge.edgeType === edgeType) {
+                    let smoothConfig;
+                    if (type === 'straight') {
+                        smoothConfig = false;
+                    } else {
+                        smoothConfig = { type: type, roundness: roundness };
+                    }
+                    edges.update({ id: edge.id, smooth: smoothConfig });
+                }
+            });
+        }
+        
+        // Set up controls for each agent
+        const agents = ['Boss', 'Tank', 'Healer', 'MeleeDPS', 'RangedDPS'];
+        
+        agents.forEach(agentId => {
+            // Node size
+            const nodeSizeSlider = document.getElementById(`nodeSize_${agentId}`);
+            const nodeSizeValue = document.getElementById(`nodeSizeValue_${agentId}`);
+            if (nodeSizeSlider && nodeSizeValue) {
+                nodeSizeSlider.addEventListener('input', function(e) {
+                    const value = parseFloat(e.target.value);
+                    nodeSizeValue.textContent = value.toFixed(1);
+                    updateAgentNodeSize(agentId, value);
+                });
+            }
+            
+            // Damage thickness - Boss has individual controls for each target
+            if (agentId === 'Boss') {
+                const targets = ['Tank', 'Healer', 'MeleeDPS', 'RangedDPS'];
+                targets.forEach(targetId => {
+                    const damageSlider = document.getElementById(`damageThickness_${agentId}_${targetId}`);
+                    const damageValue = document.getElementById(`damageValue_${agentId}_${targetId}`);
+                    if (damageSlider && damageValue) {
+                        damageSlider.addEventListener('input', function(e) {
+                            const value = parseFloat(e.target.value);
+                            damageValue.textContent = value.toFixed(1);
+                            updateAgentEdgeThickness(agentId, 'damage', value, targetId);
+                        });
+                    }
+                });
+            } else {
+                // Other agents have single damage control
+                const damageSlider = document.getElementById(`damageThickness_${agentId}`);
+                const damageValue = document.getElementById(`damageValue_${agentId}`);
+                if (damageSlider && damageValue) {
+                    damageSlider.addEventListener('input', function(e) {
+                        const value = parseFloat(e.target.value);
+                        damageValue.textContent = value.toFixed(1);
+                        updateAgentEdgeThickness(agentId, 'damage', value);
+                    });
+                }
+            }
+            
+            // Threat thickness (for Tank, Healer, MeleeDPS, RangedDPS)
+            if (agentId !== 'Boss') {
+                const threatSlider = document.getElementById(`threatThickness_${agentId}`);
+                const threatValue = document.getElementById(`threatValue_${agentId}`);
+                if (threatSlider && threatValue) {
+                    threatSlider.addEventListener('input', function(e) {
+                        const value = parseFloat(e.target.value);
+                        threatValue.textContent = value.toFixed(1);
+                        updateAgentEdgeThickness(agentId, 'threat', value);
+                    });
+                }
+            }
+            
+            // Taunt thickness (for Tank only)
+            if (agentId === 'Tank') {
+                const tauntSlider = document.getElementById(`tauntThickness_${agentId}`);
+                const tauntValue = document.getElementById(`tauntValue_${agentId}`);
+                if (tauntSlider && tauntValue) {
+                    tauntSlider.addEventListener('input', function(e) {
+                        const value = parseFloat(e.target.value);
+                        tauntValue.textContent = value.toFixed(1);
+                        updateAgentEdgeThickness(agentId, 'taunt', value);
+                    });
+                }
+            }
+            
+            // Healing thickness (for Healer only)
+            if (agentId === 'Healer') {
+                const healSlider = document.getElementById(`healThickness_${agentId}`);
+                const healValue = document.getElementById(`healValue_${agentId}`);
+                if (healSlider && healValue) {
+                    healSlider.addEventListener('input', function(e) {
+                        const value = parseFloat(e.target.value);
+                        healValue.textContent = value.toFixed(1);
+                        updateAgentEdgeThickness(agentId, 'heal', value);
+                    });
+                }
+            }
+            
+            // Edge curvature and type controls for each edge type
+            if (agentId === 'Boss') {
+                // Boss has single curvature/type for all damage edges
+                const curvatureSlider = document.getElementById(`curvature_${agentId}`);
+                const curvatureValue = document.getElementById(`curvatureValue_${agentId}`);
+                if (curvatureSlider && curvatureValue) {
+                    curvatureSlider.addEventListener('input', function(e) {
+                        const value = parseFloat(e.target.value);
+                        curvatureValue.textContent = value.toFixed(2);
+                        updateAgentEdgeCurvature(agentId, 'damage', value);
+                    });
+                }
+                
+                const edgeTypeSelect = document.getElementById(`edgeType_${agentId}`);
+                if (edgeTypeSelect) {
+                    edgeTypeSelect.addEventListener('change', function(e) {
+                        updateAgentEdgeType(agentId, 'damage', e.target.value);
+                    });
+                }
+            } else {
+                // Party members have individual controls for each edge type
+                const edgeTypes = ['damage', 'threat'];
+                if (agentId === 'Tank') {
+                    edgeTypes.push('taunt');
+                }
+                if (agentId === 'Healer') {
+                    edgeTypes.push('heal');
+                }
+                
+                edgeTypes.forEach(edgeType => {
+                    const curvatureSlider = document.getElementById(`curvature_${agentId}_${edgeType}`);
+                    const curvatureValue = document.getElementById(`curvatureValue_${agentId}_${edgeType}`);
+                    if (curvatureSlider && curvatureValue) {
+                        curvatureSlider.addEventListener('input', function(e) {
+                            const value = parseFloat(e.target.value);
+                            curvatureValue.textContent = value.toFixed(2);
+                            updateAgentEdgeCurvature(agentId, edgeType, value);
+                        });
+                    }
+                    
+                    const edgeTypeSelect = document.getElementById(`edgeType_${agentId}_${edgeType}`);
+                    if (edgeTypeSelect) {
+                        edgeTypeSelect.addEventListener('change', function(e) {
+                            updateAgentEdgeType(agentId, edgeType, e.target.value);
+                        });
+                    }
+                });
+            }
+        });
+        
+        // Global arrow controls
+        function updateArrowSize(lengthMultiplier) {
+            const newOptions = {
+                edges: {
+                    arrows: {
+                        to: {
+                            enabled: true,
+                            scaleFactor: 1.2 * lengthMultiplier,
+                            type: 'arrow'
+                        }
+                    }
+                }
+            };
+            network.setOptions(newOptions);
+        }
+        
+        document.getElementById('arrowLength').addEventListener('input', function(e) {
+            const lengthValue = parseFloat(e.target.value);
+            document.getElementById('arrowLengthValue').textContent = lengthValue.toFixed(1);
+            updateArrowSize(lengthValue);
+        });
+        
+        function resetLayout() {
+            nodes.forEach(node => {
+                const pos = {
+                "Boss": [
+                                0.0,
+                                1.0
+                ],
+                "MeleeDPS": [
+                                0.4,
+                                -0.4
+                ],
+                "Tank": [
+                                0.0,
+                                0.0
+                ],
+                "Healer": [
+                                -0.4,
+                                -0.4
+                ],
+                "RangedDPS": [
+                                0.8,
+                                -0.2
+                ]
+};
+                if (pos[node.id]) {
+                    nodes.update({
+                        id: node.id,
+                        x: pos[node.id][0] * 200,
+                        y: pos[node.id][1] * 200
+                    });
+                }
+            });
+        }
+        
+        function resetAll() {
+            resetLayout();
+            // Reset all node sizes
+            agents.forEach(agentId => {
+                nodes.update({ id: agentId, size: originalNodeSizes[agentId] });
+                const nodeSizeSlider = document.getElementById(`nodeSize_${agentId}`);
+                const nodeSizeValue = document.getElementById(`nodeSizeValue_${agentId}`);
+                if (nodeSizeSlider && nodeSizeValue) {
+                    nodeSizeSlider.value = 1;
+                    nodeSizeValue.textContent = '1.0';
+                }
+            });
+            
+            // Reset all edge thicknesses
+            edges.forEach(edge => {
+                edges.update({ id: edge.id, width: originalWidths[edge.id] });
+            });
+            
+            // Reset all sliders to defaults
+            agents.forEach(agentId => {
+                // Damage - Boss has individual controls
+                if (agentId === 'Boss') {
+                    const targets = ['Tank', 'Healer', 'MeleeDPS', 'RangedDPS'];
+                    targets.forEach(targetId => {
+                        const damageSlider = document.getElementById(`damageThickness_${agentId}_${targetId}`);
+                        const damageValue = document.getElementById(`damageValue_${agentId}_${targetId}`);
+                        if (damageSlider && damageValue) {
+                            damageSlider.value = 2;
+                            damageValue.textContent = '2';
+                        }
+                    });
+                } else {
+                    const damageSlider = document.getElementById(`damageThickness_${agentId}`);
+                    const damageValue = document.getElementById(`damageValue_${agentId}`);
+                    if (damageSlider && damageValue) {
+                        damageSlider.value = 2;
+                        damageValue.textContent = '2';
+                    }
+                }
+                
+                // Threat
+                if (agentId !== 'Boss') {
+                    const threatSlider = document.getElementById(`threatThickness_${agentId}`);
+                    const threatValue = document.getElementById(`threatValue_${agentId}`);
+                    if (threatSlider && threatValue) {
+                        threatSlider.value = 2;
+                        threatValue.textContent = '2';
+                    }
+                }
+                
+                // Taunt (Tank only)
+                if (agentId === 'Tank') {
+                    const tauntSlider = document.getElementById(`tauntThickness_${agentId}`);
+                    const tauntValue = document.getElementById(`tauntValue_${agentId}`);
+                    if (tauntSlider && tauntValue) {
+                        tauntSlider.value = 4;
+                        tauntValue.textContent = '4';
+                    }
+                }
+                
+                // Healing (Healer only)
+                if (agentId === 'Healer') {
+                    const healSlider = document.getElementById(`healThickness_${agentId}`);
+                    const healValue = document.getElementById(`healValue_${agentId}`);
+                    if (healSlider && healValue) {
+                        healSlider.value = 2;
+                        healValue.textContent = '2';
+                    }
+                }
+                
+                // Curvature and edge type - Boss has single control, party members have per-edge-type
+                if (agentId === 'Boss') {
+                    const curvatureSlider = document.getElementById(`curvature_${agentId}`);
+                    const curvatureValue = document.getElementById(`curvatureValue_${agentId}`);
+                    if (curvatureSlider && curvatureValue) {
+                        curvatureSlider.value = 0.5;
+                        curvatureValue.textContent = '0.5';
+                        updateAgentEdgeCurvature(agentId, 'damage', 0.5);
+                    }
+                    
+                    const edgeTypeSelect = document.getElementById(`edgeType_${agentId}`);
+                    if (edgeTypeSelect) {
+                        edgeTypeSelect.value = 'continuous';
+                        updateAgentEdgeType(agentId, 'damage', 'continuous');
+                    }
+                } else {
+                    const edgeTypes = ['damage', 'threat'];
+                    if (agentId === 'Tank') {
+                        edgeTypes.push('taunt');
+                    }
+                    if (agentId === 'Healer') {
+                        edgeTypes.push('heal');
+                    }
+                    
+                    edgeTypes.forEach(edgeType => {
+                        const curvatureSlider = document.getElementById(`curvature_${agentId}_${edgeType}`);
+                        const curvatureValue = document.getElementById(`curvatureValue_${agentId}_${edgeType}`);
+                        if (curvatureSlider && curvatureValue) {
+                            curvatureSlider.value = 0.5;
+                            curvatureValue.textContent = '0.5';
+                            updateAgentEdgeCurvature(agentId, edgeType, 0.5);
+                        }
+                        
+                        const edgeTypeSelect = document.getElementById(`edgeType_${agentId}_${edgeType}`);
+                        if (edgeTypeSelect) {
+                            edgeTypeSelect.value = 'continuous';
+                            updateAgentEdgeType(agentId, edgeType, 'continuous');
+                        }
+                    });
+                }
+            });
+            
+            // Reset arrow size
+            document.getElementById('arrowLength').value = 1.2;
+            document.getElementById('arrowLengthValue').textContent = '1.2';
+            updateArrowSize(1.2);
+        }
+        
+        // Save/Load Configuration
+        function saveConfiguration() {
+            const config = {
+                nodeSizes: {},
+                edgeThicknesses: {},
+                edgeCurvatures: {},
+                edgeTypes: {},
+                arrowLength: parseFloat(document.getElementById('arrowLength').value),
+                nodePositions: {}
+            };
+            
+            // Save node sizes
+            agents.forEach(agentId => {
+                const slider = document.getElementById(`nodeSize_${agentId}`);
+                if (slider) {
+                    config.nodeSizes[agentId] = parseFloat(slider.value);
+                }
+            });
+            
+            // Save edge thicknesses
+            agents.forEach(agentId => {
+                if (agentId === 'Boss') {
+                    const targets = ['Tank', 'Healer', 'MeleeDPS', 'RangedDPS'];
+                    targets.forEach(targetId => {
+                        const slider = document.getElementById(`damageThickness_${agentId}_${targetId}`);
+                        if (slider) {
+                            config.edgeThicknesses[`${agentId}_damage_${targetId}`] = parseFloat(slider.value);
+                        }
+                    });
+                } else {
+                    const damageSlider = document.getElementById(`damageThickness_${agentId}`);
+                    if (damageSlider) {
+                        config.edgeThicknesses[`${agentId}_damage`] = parseFloat(damageSlider.value);
+                    }
+                    
+                    if (agentId !== 'Boss') {
+                        const threatSlider = document.getElementById(`threatThickness_${agentId}`);
+                        if (threatSlider) {
+                            config.edgeThicknesses[`${agentId}_threat`] = parseFloat(threatSlider.value);
+                        }
+                    }
+                    
+                    if (agentId === 'Tank') {
+                        const tauntSlider = document.getElementById(`tauntThickness_${agentId}`);
+                        if (tauntSlider) {
+                            config.edgeThicknesses[`${agentId}_taunt`] = parseFloat(tauntSlider.value);
+                        }
+                    }
+                    
+                    if (agentId === 'Healer') {
+                        const healSlider = document.getElementById(`healThickness_${agentId}`);
+                        if (healSlider) {
+                            config.edgeThicknesses[`${agentId}_heal`] = parseFloat(healSlider.value);
+                        }
+                    }
+                }
+            });
+            
+            // Save edge curvatures and types
+            agents.forEach(agentId => {
+                if (agentId === 'Boss') {
+                    const curvatureSlider = document.getElementById(`curvature_${agentId}`);
+                    const edgeTypeSelect = document.getElementById(`edgeType_${agentId}`);
+                    if (curvatureSlider) {
+                        config.edgeCurvatures[`${agentId}_damage`] = parseFloat(curvatureSlider.value);
+                    }
+                    if (edgeTypeSelect) {
+                        config.edgeTypes[`${agentId}_damage`] = edgeTypeSelect.value;
+                    }
+                } else {
+                    const edgeTypes = ['damage', 'threat'];
+                    if (agentId === 'Tank') {
+                        edgeTypes.push('taunt');
+                    }
+                    if (agentId === 'Healer') {
+                        edgeTypes.push('heal');
+                    }
+                    
+                    edgeTypes.forEach(edgeType => {
+                        const curvatureSlider = document.getElementById(`curvature_${agentId}_${edgeType}`);
+                        const edgeTypeSelect = document.getElementById(`edgeType_${agentId}_${edgeType}`);
+                        if (curvatureSlider) {
+                            config.edgeCurvatures[`${agentId}_${edgeType}`] = parseFloat(curvatureSlider.value);
+                        }
+                        if (edgeTypeSelect) {
+                            config.edgeTypes[`${agentId}_${edgeType}`] = edgeTypeSelect.value;
+                        }
+                    });
+                }
+            });
+            
+            // Save node positions
+            nodes.forEach(node => {
+                config.nodePositions[node.id] = { x: node.x, y: node.y };
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('sna_configuration', JSON.stringify(config));
+            alert('Configuration saved!');
+        }
+        
+        function loadConfiguration() {
+            const saved = localStorage.getItem('sna_configuration');
+            if (!saved) {
+                alert('No saved configuration found!');
+                return;
+            }
+            
+            try {
+                const config = JSON.parse(saved);
+                
+                // Load node sizes
+                Object.keys(config.nodeSizes || {}).forEach(agentId => {
+                    const slider = document.getElementById(`nodeSize_${agentId}`);
+                    const valueSpan = document.getElementById(`nodeSizeValue_${agentId}`);
+                    if (slider && valueSpan) {
+                        slider.value = config.nodeSizes[agentId];
+                        valueSpan.textContent = config.nodeSizes[agentId].toFixed(1);
+                        updateAgentNodeSize(agentId, config.nodeSizes[agentId]);
+                    }
+                });
+                
+                // Load edge thicknesses
+                Object.keys(config.edgeThicknesses || {}).forEach(key => {
+                    const parts = key.split('_');
+                    if (parts.length === 3 && parts[0] === 'Boss') {
+                        // Boss damage to specific target
+                        const slider = document.getElementById(`damageThickness_${parts[0]}_${parts[2]}`);
+                        const valueSpan = document.getElementById(`damageValue_${parts[0]}_${parts[2]}`);
+                        if (slider && valueSpan) {
+                            slider.value = config.edgeThicknesses[key];
+                            valueSpan.textContent = config.edgeThicknesses[key].toFixed(1);
+                            updateAgentEdgeThickness(parts[0], 'damage', config.edgeThicknesses[key], parts[2]);
+                        }
+                    } else if (parts.length === 2) {
+                        // Regular edge thickness
+                        const agentId = parts[0];
+                        const edgeType = parts[1];
+                        const slider = document.getElementById(`${edgeType}Thickness_${agentId}`);
+                        const valueSpan = document.getElementById(`${edgeType}Value_${agentId}`);
+                        if (slider && valueSpan) {
+                            slider.value = config.edgeThicknesses[key];
+                            valueSpan.textContent = config.edgeThicknesses[key].toFixed(1);
+                            updateAgentEdgeThickness(agentId, edgeType, config.edgeThicknesses[key]);
+                        }
+                    }
+                });
+                
+                // Load edge curvatures
+                Object.keys(config.edgeCurvatures || {}).forEach(key => {
+                    const parts = key.split('_');
+                    if (parts.length === 2 && parts[0] === 'Boss') {
+                        const slider = document.getElementById(`curvature_${parts[0]}`);
+                        const valueSpan = document.getElementById(`curvatureValue_${parts[0]}`);
+                        if (slider && valueSpan) {
+                            slider.value = config.edgeCurvatures[key];
+                            valueSpan.textContent = config.edgeCurvatures[key].toFixed(2);
+                            updateAgentEdgeCurvature(parts[0], parts[1], config.edgeCurvatures[key]);
+                        }
+                    } else if (parts.length === 2) {
+                        const slider = document.getElementById(`curvature_${parts[0]}_${parts[1]}`);
+                        const valueSpan = document.getElementById(`curvatureValue_${parts[0]}_${parts[1]}`);
+                        if (slider && valueSpan) {
+                            slider.value = config.edgeCurvatures[key];
+                            valueSpan.textContent = config.edgeCurvatures[key].toFixed(2);
+                            updateAgentEdgeCurvature(parts[0], parts[1], config.edgeCurvatures[key]);
+                        }
+                    }
+                });
+                
+                // Load edge types
+                Object.keys(config.edgeTypes || {}).forEach(key => {
+                    const parts = key.split('_');
+                    if (parts.length === 2 && parts[0] === 'Boss') {
+                        const select = document.getElementById(`edgeType_${parts[0]}`);
+                        if (select) {
+                            select.value = config.edgeTypes[key];
+                            updateAgentEdgeType(parts[0], parts[1], config.edgeTypes[key]);
+                        }
+                    } else if (parts.length === 2) {
+                        const select = document.getElementById(`edgeType_${parts[0]}_${parts[1]}`);
+                        if (select) {
+                            select.value = config.edgeTypes[key];
+                            updateAgentEdgeType(parts[0], parts[1], config.edgeTypes[key]);
+                        }
+                    }
+                });
+                
+                // Load arrow length
+                if (config.arrowLength !== undefined) {
+                    document.getElementById('arrowLength').value = config.arrowLength;
+                    document.getElementById('arrowLengthValue').textContent = config.arrowLength.toFixed(1);
+                    updateArrowSize(config.arrowLength);
+                }
+                
+                // Load node positions
+                if (config.nodePositions) {
+                    Object.keys(config.nodePositions).forEach(nodeId => {
+                        const pos = config.nodePositions[nodeId];
+                        nodes.update({ id: nodeId, x: pos.x, y: pos.y });
+                    });
+                }
+                
+                alert('Configuration loaded!');
+            } catch (e) {
+                alert('Error loading configuration: ' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
